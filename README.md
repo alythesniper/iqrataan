@@ -2,6 +2,8 @@
 
 This is a dev fork of yomitan for improving arabic support.
 
+When loading into chrome-based browser of choice, select the 'ext' directory. 
+
 ## What is Yomitan?
 
 Yomitan turns your web browser into a tool for building language literacy by helping you **read** texts that would otherwise be too difficult to tackle in [a variety of supported languages](https://yomitan.wiki/supported-languages/).
