@@ -20,7 +20,6 @@ import {ThemeController} from '../app/theme-controller.js';
 import {EventDispatcher} from '../core/event-dispatcher.js';
 import {EventListenerCollection} from '../core/event-listener-collection.js';
 import {log} from '../core/log.js';
-import {safePerformance} from '../core/safe-performance.js';
 import {clone} from '../core/utilities.js';
 import {anyNodeMatchesSelector, everyNodeMatchesSelector, getActiveModifiers, getActiveModifiersAndButtons, isPointInSelection} from '../dom/document-util.js';
 import {TextSourceElement} from '../dom/text-source-element.js';
@@ -457,7 +456,6 @@ export class TextScanner extends EventDispatcher {
      */
     async _search(textSource, searchTerms, searchKanji, inputInfo, showEmpty = false, disallowExpandStartOffset = false) {
         try {
-            safePerformance.mark('scanner:_search:start');
             const isAltText = textSource instanceof TextSourceElement;
             if (inputInfo.pointerType === 'touch') {
                 if (isAltText) {
@@ -531,8 +529,6 @@ export class TextScanner extends EventDispatcher {
             } else {
                 this._triggerSearchEmpty(inputInfo);
             }
-            safePerformance.mark('scanner:_search:end');
-            safePerformance.measure('scanner:_search', 'scanner:_search:start', 'scanner:_search:end');
         } catch (error) {
             this.trigger('searchError', {
                 error: error instanceof Error ? error : new Error(`A search error occurred: ${error}`),
@@ -1261,7 +1257,6 @@ export class TextScanner extends EventDispatcher {
         if (this._pendingLookup) { return; }
 
         try {
-            safePerformance.mark('scanner:_searchAt:start');
             const sourceInput = inputInfo.input;
             let searchTerms = this._searchTerms;
             let searchKanji = this._searchKanji;
@@ -1291,8 +1286,6 @@ export class TextScanner extends EventDispatcher {
             } else {
                 this._triggerSearchEmpty(inputInfo);
             }
-            safePerformance.mark('scanner:_searchAt:end');
-            safePerformance.measure('scanner:_searchAt', 'scanner:_searchAt:start', 'scanner:_searchAt:end');
         } catch (e) {
             log.error(e);
         } finally {

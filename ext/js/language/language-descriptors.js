@@ -15,15 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {removeArabicScriptDiacritics} from './ar/arabic-text-preprocessors.js';
+import {
+    addHamzaBottom,
+    addHamzaTop,
+    convertAlifNoHamza,
+    fixYaa,
+    removeArabicScriptDiacritics
+} from './ar/arabic-text-preprocessors.js';
+import {arabicTransforms} from './ar/arabic-transforms.js';
 import {normalizeRadicalCharacters} from './CJK-util.js';
 import {eszettPreprocessor} from './de/german-text-preprocessors.js';
 import {germanTransforms} from './de/german-transforms.js';
 import {englishTransforms} from './en/english-transforms.js';
-import {esperantoTransforms} from './eo/esperanto-transforms.js';
 import {spanishTransforms} from './es/spanish-transforms.js';
 import {apostropheVariants} from './fr/french-text-preprocessors.js';
-import {frenchTransforms} from './fr/french-transforms.js';
 import {
     alphabeticToHiragana,
     alphanumericWidthVariants,
@@ -37,7 +42,6 @@ import {japaneseTransforms} from './ja/japanese-transforms.js';
 import {isStringPartiallyJapanese} from './ja/japanese.js';
 import {disassembleHangul, reassembleHangul} from './ko/korean-text-processors.js';
 import {koreanTransforms} from './ko/korean-transforms.js';
-import {processDiphtongs} from './la/latin-text-preprocessors.js';
 import {latinTransforms} from './la/latin-transforms.js';
 import {removeRussianDiacritics, yoToE} from './ru/russian-text-preprocessors.js';
 import {oldIrishTransforms} from './sga/old-irish-transforms.js';
@@ -46,9 +50,6 @@ import {albanianTransforms} from './sq/albanian-transforms.js';
 import {capitalizeFirstLetter, decapitalize, removeAlphabeticDiacritics} from './text-processors.js';
 import {tagalogTransforms} from './tl/tagalog-transforms.js';
 import {normalizeDiacritics} from './vi/viet-text-preprocessors.js';
-import {convertFinalLetters, convertYiddishLigatures} from './yi/yiddish-text-postprocessors.js';
-import {combineYiddishLigatures, removeYiddishDiacritics} from './yi/yiddish-text-preprocessors.js';
-import {yiddishTransforms} from './yi/yiddish-transforms.js';
 import {isStringPartiallyChinese, normalizePinyin} from './zh/chinese.js';
 
 const capitalizationPreprocessors = {
@@ -65,7 +66,12 @@ const languageDescriptors = [
         exampleText: 'قَرَأَ',
         textPreprocessors: {
             removeArabicScriptDiacritics,
+            addHamzaTop,
+            addHamzaBottom,
+            fixYaa,
+            convertAlifNoHamza,
         },
+        languageTransforms: arabicTransforms,
     },
     {
         iso: 'cs',
@@ -115,7 +121,6 @@ const languageDescriptors = [
         name: 'Esperanto',
         exampleText: 'legi',
         textPreprocessors: capitalizationPreprocessors,
-        languageTransforms: esperantoTransforms,
     },
     {
         iso: 'es',
@@ -124,13 +129,6 @@ const languageDescriptors = [
         exampleText: 'leer',
         textPreprocessors: capitalizationPreprocessors,
         languageTransforms: spanishTransforms,
-    },
-    {
-        iso: 'et',
-        iso639_3: 'est',
-        name: 'Estonian',
-        exampleText: 'lugema',
-        textPreprocessors: capitalizationPreprocessors,
     },
     {
         iso: 'fa',
@@ -157,7 +155,6 @@ const languageDescriptors = [
             ...capitalizationPreprocessors,
             apostropheVariants,
         },
-        languageTransforms: frenchTransforms,
     },
     {
         iso: 'grc',
@@ -207,7 +204,6 @@ const languageDescriptors = [
         textPreprocessors: {
             ...capitalizationPreprocessors,
             removeAlphabeticDiacritics,
-            processDiphtongs,
         },
         languageTransforms: latinTransforms,
     },
@@ -272,13 +268,6 @@ const languageDescriptors = [
         iso639_3: 'mon',
         name: 'Mongolian',
         exampleText: 'унших',
-        textPreprocessors: capitalizationPreprocessors,
-    },
-    {
-        iso: 'mt',
-        iso639_3: 'mlt',
-        name: 'Maltese',
-        exampleText: 'kiteb',
         textPreprocessors: capitalizationPreprocessors,
     },
     {
@@ -399,21 +388,6 @@ const languageDescriptors = [
             ...capitalizationPreprocessors,
             normalizeDiacritics,
         },
-    },
-    {
-        iso: 'yi',
-        iso639_3: 'yid',
-        name: 'Yiddish',
-        exampleText: 'באַשאַפֿן',
-        textPreprocessors: {
-            removeYiddishDiacritics,
-            combineYiddishLigatures,
-        },
-        textPostprocessors: {
-            convertFinalLetters,
-            convertYiddishLigatures,
-        },
-        languageTransforms: yiddishTransforms,
     },
     {
         iso: 'yue',

@@ -494,8 +494,6 @@ export class DictionaryController {
         this._settingsController = settingsController;
         /** @type {import('./modal-controller.js').ModalController} */
         this._modalController = modalController;
-        /** @type {HTMLElement} */
-        this._dictionaryModalBody = querySelectorNotNull(document, '#dictionaries-modal-body');
         /** @type {import('./status-footer.js').StatusFooter} */
         this._statusFooter = statusFooter;
         /** @type {?import('dictionary-importer').Summary[]} */
@@ -645,7 +643,7 @@ export class DictionaryController {
         const event = {source: this};
         this._settingsController.trigger('dictionarySettingsReordered', event);
 
-        this._updateCurrentEntries(options);
+        await this._updateEntries();
     }
 
     /**
@@ -822,30 +820,6 @@ export class DictionaryController {
             if (typeof dictionaryInfo === 'undefined') { continue; }
             this._createDictionaryEntry(i, dictionaryInfo, updateDownloadUrl);
         }
-    }
-
-    /**
-     * @param {import('settings').ProfileOptions} options
-     */
-    _updateCurrentEntries(options) {
-        const dictionariesModalBodyScrollY = this._dictionaryModalBody.scrollTop;
-        const dictionaries = this._dictionaries;
-        if (dictionaries === null) { return; }
-
-        for (const dictionaryEntry of this._dictionaryEntries) {
-            dictionaryEntry.cleanup();
-        }
-
-        const dictionaryOptionsArray = options.dictionaries;
-        for (let i = 0; i < dictionaryOptionsArray.length; i++) {
-            const {name} = dictionaryOptionsArray[i];
-            /** @type {import('dictionary-importer').Summary | undefined} */
-            const dictionaryInfo = dictionaries.find((dictionary) => dictionary.title === name);
-            if (typeof dictionaryInfo === 'undefined') { continue; }
-            const updateDownloadUrl = dictionaryInfo.downloadUrl ?? null;
-            this._createDictionaryEntry(i, dictionaryInfo, updateDownloadUrl);
-        }
-        this._dictionaryModalBody.scroll({top: dictionariesModalBodyScrollY});
     }
 
     /**

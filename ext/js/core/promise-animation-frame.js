@@ -16,8 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {safePerformance} from './safe-performance.js';
-
 /**
  * Creates a promise that will resolve after the next animation frame, using `requestAnimationFrame`.
  * @param {number} [timeout] A maximum duration (in milliseconds) to wait until the promise resolves. If null or omitted, no timeout is used.
@@ -53,7 +51,7 @@ export function promiseAnimationFrame(timeout) {
                 cancelAnimationFrame(frameRequest);
                 frameRequest = null;
             }
-            resolve({time: safePerformance.now(), timeout: true});
+            resolve({time: performance.now(), timeout: true});
         };
 
         frameRequest = requestAnimationFrame(onFrame);

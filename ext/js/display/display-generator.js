@@ -17,7 +17,6 @@
  */
 
 import {ExtensionError} from '../core/extension-error.js';
-import {safePerformance} from '../core/safe-performance.js';
 import {getDisambiguations, getGroupedPronunciations, getTermFrequency, groupKanjiFrequencies, groupTermFrequencies, groupTermTags, isNonNounVerbOrAdjective} from '../dictionary/dictionary-data-util.js';
 import {HtmlTemplateCollection} from '../dom/html-template-collection.js';
 import {distributeFurigana, getKanaMorae, getPitchCategory, isCodePointKanji} from '../language/ja/japanese.js';
@@ -41,13 +40,6 @@ export class DisplayGenerator {
         this._structuredContentGenerator = new StructuredContentGenerator(this._contentManager, document);
         /** @type {string} */
         this._language = 'ja';
-    }
-
-    /** @type {import('./display-content-manager.js').DisplayContentManager} */
-    get contentManager() { return this._contentManager; }
-
-    set contentManager(contentManager) {
-        this._contentManager = contentManager;
     }
 
     /** */
@@ -119,23 +111,17 @@ export class DisplayGenerator {
         node.dataset.groupedFrequencyCount = `${groupedFrequencies.length}`;
         node.dataset.primaryMatchTypes = [...primaryMatchTypes].join(' ');
 
-        safePerformance.mark('displayGenerator:createTermEntry:createTermHeadword:start');
         for (let i = 0, ii = headwords.length; i < ii; ++i) {
             const node2 = this._createTermHeadword(headwords[i], i, pronunciations);
             node2.dataset.index = `${i}`;
             headwordsContainer.appendChild(node2);
         }
         headwordsContainer.dataset.count = `${headwords.length}`;
-        safePerformance.mark('displayGenerator:createTermEntry:createTermHeadword:end');
-        safePerformance.measure('displayGenerator:createTermEntry:createTermHeadword', 'displayGenerator:createTermEntry:createTermHeadword:start', 'displayGenerator:createTermEntry:createTermHeadword:end');
 
-        safePerformance.mark('displayGenerator:createTermEntry:promises:start');
         this._appendMultiple(inflectionRuleChainsContainer, this._createInflectionRuleChain.bind(this), inflectionRuleChainCandidates);
         this._appendMultiple(frequencyGroupListContainer, this._createFrequencyGroup.bind(this), groupedFrequencies, false);
         this._appendMultiple(groupedPronunciationsContainer, this._createGroupedPronunciation.bind(this), groupedPronunciations);
         this._appendMultiple(headwordTagsContainer, this._createTermTag.bind(this), termTags, headwords.length);
-        safePerformance.mark('displayGenerator:createTermEntry:promises:end');
-        safePerformance.measure('displayGenerator:createTermEntry:promises', 'displayGenerator:createTermEntry:promises:start', 'displayGenerator:createTermEntry:promises:end');
 
         for (const term of uniqueTerms) {
             headwordTagsContainer.appendChild(this._createSearchTag(term));
@@ -500,6 +486,7 @@ export class DisplayGenerator {
         this._appendMultiple(tagListContainer, this._createTag.bind(this), [...tags, dictionaryTag]);
         this._appendMultiple(onlyListContainer, this._createTermDisambiguation.bind(this), disambiguations);
         this._appendMultiple(entriesContainer, this._createTermDefinitionEntry.bind(this), entries, dictionary);
+
         return node;
     }
 
@@ -993,7 +980,7 @@ export class DisplayGenerator {
     _appendKanjiLinks(container, text) {
         let part = '';
         for (const c of text) {
-            if (isCodePointKanji(/** @type {number} */(c.codePointAt(0)))) {
+            if (isCodePointKanji(/** @type {number} */ (c.codePointAt(0)))) {
                 if (part.length > 0) {
                     container.appendChild(document.createTextNode(part));
                     part = '';
@@ -1024,7 +1011,7 @@ export class DisplayGenerator {
         const {ELEMENT_NODE} = Node;
         if (Array.isArray(detailsArray)) {
             for (const details of detailsArray) {
-                const item = createItem(details, /** @type {TExtraArg} */(arg));
+                const item = createItem(details, /** @type {TExtraArg} */ (arg));
                 if (item === null) { continue; }
                 container.appendChild(item);
                 if (item.nodeType === ELEMENT_NODE) {

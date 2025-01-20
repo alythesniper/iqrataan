@@ -16,9 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {DisplayContentManager} from '../display/display-content-manager.js';
 import {getLanguageFromText} from '../language/text-utilities.js';
-import {AnkiTemplateRendererContentManager} from '../templates/anki-template-renderer-content-manager.js';
 
 export class StructuredContentGenerator {
     /**
@@ -66,6 +64,7 @@ export class StructuredContentGenerator {
             preferredWidth,
             preferredHeight,
             title,
+            alt,
             pixelated,
             imageRendering,
             appearance,
@@ -82,13 +81,13 @@ export class StructuredContentGenerator {
         const hasPreferredHeight = (typeof preferredHeight === 'number');
         const invAspectRatio = (
             hasPreferredWidth && hasPreferredHeight ?
-                preferredHeight / preferredWidth :
-                height / width
+            preferredHeight / preferredWidth :
+            height / width
         );
         const usedWidth = (
             hasPreferredWidth ?
-                preferredWidth :
-                (hasPreferredHeight ? preferredHeight / invAspectRatio : width)
+            preferredWidth :
+            (hasPreferredHeight ? preferredHeight / invAspectRatio : width)
         );
 
         const node = /** @type {HTMLAnchorElement} */ (this._createElement('a', 'gloss-image-link'));
@@ -104,20 +103,16 @@ export class StructuredContentGenerator {
         const imageBackground = this._createElement('span', 'gloss-image-background');
         imageContainer.appendChild(imageBackground);
 
+        const image = /** @type {HTMLImageElement} */ (this._createElement('img', 'gloss-image'));
+        image.alt = typeof alt === 'string' ? alt : '';
+        imageContainer.appendChild(image);
+
         const overlay = this._createElement('span', 'gloss-image-container-overlay');
         imageContainer.appendChild(overlay);
 
         const linkText = this._createElement('span', 'gloss-image-link-text');
         linkText.textContent = 'Image';
         node.appendChild(linkText);
-
-        if (this._contentManager instanceof DisplayContentManager) {
-            node.addEventListener('click', () => {
-                if (this._contentManager instanceof DisplayContentManager) {
-                    void this._contentManager.openMediaInTab(path, dictionary, window);
-                }
-            });
-        }
 
         node.dataset.path = path;
         node.dataset.dictionary = dictionary;
@@ -135,54 +130,22 @@ export class StructuredContentGenerator {
             node.dataset.sizeUnits = sizeUnits;
         }
 
-        aspectRatioSizer.style.paddingTop = `${invAspectRatio * 100}%`;
-
+        imageContainer.style.width = `${usedWidth}em`;
         if (typeof border === 'string') { imageContainer.style.border = border; }
         if (typeof borderRadius === 'string') { imageContainer.style.borderRadius = borderRadius; }
-        imageContainer.style.width = `${usedWidth}em`;
         if (typeof title === 'string') {
             imageContainer.title = title;
         }
 
+        aspectRatioSizer.style.paddingTop = `${invAspectRatio * 100}%`;
+
         if (this._contentManager !== null) {
-            const image = this._contentManager instanceof DisplayContentManager ?
-                /** @type {HTMLCanvasElement} */ (this._createElement('canvas', 'gloss-image')) :
-                /** @type {HTMLImageElement} */ (this._createElement('img', 'gloss-image'));
-            if (sizeUnits === 'em' && (hasPreferredWidth || hasPreferredHeight)) {
-                const emSize = 14; // We could Number.parseFloat(getComputedStyle(document.documentElement).fontSize); here for more accuracy but it would cause a layout and be extremely slow; possible improvement would be to calculate and cache the value
-                const scaleFactor = 2 * window.devicePixelRatio;
-                image.style.width = `${usedWidth}em`;
-                image.style.height = `${usedWidth * invAspectRatio}em`;
-                image.width = usedWidth * emSize * scaleFactor;
-            } else {
-                image.width = usedWidth;
-            }
-            image.height = image.width * invAspectRatio;
-
-            // Anki will not render images correctly without specifying to use 100% width and height
-            image.style.width = '100%';
-            image.style.height = '100%';
-
-            imageContainer.appendChild(image);
-
-            if (this._contentManager instanceof DisplayContentManager) {
-                this._contentManager.loadMedia(
-                    path,
-                    dictionary,
-                    (/** @type {HTMLCanvasElement} */(image)).transferControlToOffscreen(),
-                );
-            } else if (this._contentManager instanceof AnkiTemplateRendererContentManager) {
-                this._contentManager.loadMedia(
-                    path,
-                    dictionary,
-                    (url) => {
-                        this._setImageData(node, /** @type {HTMLImageElement} */ (image), imageBackground, url, false);
-                    },
-                    () => {
-                        this._setImageData(node, /** @type {HTMLImageElement} */ (image), imageBackground, null, true);
-                    },
-                );
-            }
+            this._contentManager.loadMedia(
+                path,
+                dictionary,
+                (url) => this._setImageData(node, image, imageBackground, url, false),
+                () => this._setImageData(node, image, imageBackground, null, true),
+            );
         }
 
         return node;
@@ -366,12 +329,11 @@ export class StructuredContentGenerator {
                 break;
         }
         if (hasStyle) {
-            const {style, title, open} = /** @type {import('structured-content').StyledElement} */ (content);
+            const {style, title} = /** @type {import('structured-content').StyledElement} */ (content);
             if (typeof style === 'object' && style !== null) {
                 this._setStructuredContentElementStyle(node, style);
             }
             if (typeof title === 'string') { node.title = title; }
-            if (typeof open === 'boolean' && open) { node.setAttribute('open', ''); }
         }
         if (hasChildren) {
             this._appendStructuredContent(node, content.content, dictionary, language);

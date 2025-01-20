@@ -74,6 +74,10 @@ type AllTextProcessors = {
     ar: {
         pre: {
             removeArabicScriptDiacritics: TextProcessor<boolean>;
+            addHamzaTop: TextProcessor<boolean>;
+            addHamzaBottom: TextProcessor<boolean>;
+            fixYaa: TextProcessor<boolean>;
+            convertAlifNoHamza: TextProcessor<boolean>;
         };
     };
     cs: {
@@ -97,9 +101,6 @@ type AllTextProcessors = {
         pre: CapitalizationPreprocessors;
     };
     es: {
-        pre: CapitalizationPreprocessors;
-    };
-    et: {
         pre: CapitalizationPreprocessors;
     };
     fa: {
@@ -129,9 +130,7 @@ type AllTextProcessors = {
         pre: CapitalizationPreprocessors & AlphabeticDiacriticsProcessor;
     };
     la: {
-        pre: CapitalizationPreprocessors & AlphabeticDiacriticsProcessor & {
-            processDiphtongs: BidirectionalConversionPreprocessor;
-        };
+        pre: CapitalizationPreprocessors & AlphabeticDiacriticsProcessor;
     };
     lo: Record<string, never>;
     lv: {
@@ -160,9 +159,6 @@ type AllTextProcessors = {
     km: Record<string, never>;
     kn: Record<string, never>;
     mn: {
-        pre: CapitalizationPreprocessors;
-    };
-    mt: {
         pre: CapitalizationPreprocessors;
     };
     nl: {
@@ -210,16 +206,6 @@ type AllTextProcessors = {
     vi: {
         pre: CapitalizationPreprocessors & {
             normalizeDiacritics: TextProcessor<'old' | 'new' | 'off'>;
-        };
-    };
-    yi: {
-        pre: {
-            combineYiddishLigatures: TextProcessor<boolean>;
-            removeYiddishDiacritics: TextProcessor<boolean>;
-        };
-        post: {
-            convertFinalLetters: TextProcessor<boolean>;
-            convertYiddishLigatures: BidirectionalConversionPreprocessor;
         };
     };
     yue: {

@@ -34,7 +34,10 @@ const optionalDiacritics = [
     '\u0655', // Hamza Below
     '\u0656', // Subscript Alef
     '\u0670', // Dagger Alef
+    '\u0640', // Kashida
+
 ];
+
 
 const diacriticsRegex = new RegExp(`[${optionalDiacritics.join('')}]`, 'g');
 
@@ -45,5 +48,55 @@ export const removeArabicScriptDiacritics = {
     options: basicTextProcessorOptions,
     process: (text, setting) => {
         return setting ? text.replace(diacriticsRegex, '') : text;
+    },
+};
+
+/** @type {import('language').TextProcessor<boolean>} */
+export const convertAlifNoHamza = {
+    name: 'convert alif to alif with no hamza',
+    description: 'قرأ ⬅️ قرا',
+    options: basicTextProcessorOptions,
+    process: (text, setting) => {
+        return setting ? text.replace('أ', 'ا') : text;
+    },
+};
+
+/** @type {import('language').TextProcessor<boolean>} */
+export const addHamzaTop = {
+    name: 'Add hamza to top of alif',
+    description: 'اسبوع ⬅️ أسبوع',
+    options: basicTextProcessorOptions,
+    process: (text, setting) => {
+        return setting ? text.replace('ا', 'أ') : text;
+    },
+};
+
+/** @type {import('language').TextProcessor<boolean>} */
+export const addHamzaBottom = {
+    name: 'Add hamza to bottom of alif',
+    description: 'اسلام ⬅️ إسلام',
+    options: basicTextProcessorOptions,
+    process: (text, setting) => {
+        return setting ? text.replace('ا', 'إ') : text;
+    },
+};
+
+/** @type {import('language').TextProcessor<boolean>} */
+export const fixYaa = {
+    name: 'Add proper yaa',
+    description: 'فى ⬅️ في',
+    options: basicTextProcessorOptions,
+    process: (text, setting) => {
+        return setting ? text.replace('ى', 'ي') : text;
+    },
+};
+
+/** @type {import('language').TextProcessor<boolean>} */
+export const endingHaaToTaa = {
+    name: 'Change ending haa to taa',
+    description: 'جزمه ⬅️ جزمة',
+    options: basicTextProcessorOptions,
+    process: (text, setting) => {
+        return setting ? text.replace(/ه$/, 'ة') : text;
     },
 };

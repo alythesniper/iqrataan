@@ -19,12 +19,7 @@
 import {EventListenerCollection} from '../core/event-listener-collection.js';
 
 export class ElementOverflowController {
-    /**
-     * @param {import('./display.js').Display} display
-     */
-    constructor(display) {
-        /** @type {import('./display.js').Display} */
-        this._display = display;
+    constructor() {
         /** @type {Element[]} */
         this._elements = [];
         /** @type {?(number|import('core').Timeout)} */
@@ -146,10 +141,7 @@ export class ElementOverflowController {
         ];
         for (const collapsedElement of collapsedElements) {
             if (collapsedElement === null) { continue; }
-            const collapsed = collapsedElement.classList.toggle('collapsed');
-            if (collapsed) {
-                this._display.scrollUpToElementTop(element);
-            }
+            collapsedElement.classList.toggle('collapsed');
         }
     }
 

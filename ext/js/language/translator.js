@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {safePerformance} from '../core/safe-performance.js';
 import {applyTextReplacement} from '../general/regex-util.js';
 import {isCodePointJapanese} from './ja/japanese.js';
 import {LanguageTransformer} from './language-transformer.js';
@@ -77,7 +76,6 @@ export class Translator {
      * @returns {Promise<{dictionaryEntries: import('dictionary').TermDictionaryEntry[], originalTextLength: number}>} An object containing dictionary entries and the length of the original source text.
      */
     async findTerms(mode, text, options) {
-        safePerformance.mark('translator:findTerms:start');
         const {enabledDictionaryMap, excludeDictionaryDefinitions, sortFrequencyDictionary, sortFrequencyDictionaryOrder, language, primaryReading} = options;
         const tagAggregator = new TranslatorTagAggregator();
         let {dictionaryEntries, originalTextLength} = await this._findTermsInternal(text, options, tagAggregator, primaryReading);
@@ -122,9 +120,8 @@ export class Translator {
             if (frequencies.length > 1) { this._sortTermDictionaryEntrySimpleData(frequencies); }
             if (pronunciations.length > 1) { this._sortTermDictionaryEntrySimpleData(pronunciations); }
         }
+
         const withUserFacingInflections = this._addUserFacingInflections(language, dictionaryEntries);
-        safePerformance.mark('translator:findTerms:end');
-        safePerformance.measure('translator:findTerms', 'translator:findTerms:start', 'translator:findTerms:end');
 
         return {dictionaryEntries: withUserFacingInflections, originalTextLength};
     }
@@ -374,11 +371,10 @@ export class Translator {
      * @returns {Promise<import('translation-internal').DatabaseDeinflection[]>}
      */
     async _getDeinflections(text, options) {
-        safePerformance.mark('translator:getDeinflections:start');
         let deinflections = (
             options.deinflect ?
-                this._getAlgorithmDeinflections(text, options) :
-                [this._createDeinflection(text, text, text, 0, [], [])]
+            this._getAlgorithmDeinflections(text, options) :
+            [this._createDeinflection(text, text, text, 0, [], [])]
         );
         if (deinflections.length === 0) { return []; }
 
@@ -397,8 +393,6 @@ export class Translator {
         }
         deinflections = deinflections.filter((deinflection) => deinflection.databaseEntries.length);
 
-        safePerformance.mark('translator:getDeinflections:end');
-        safePerformance.measure('translator:getDeinflections', 'translator:getDeinflections:start', 'translator:getDeinflections:end');
         return deinflections;
     }
 
@@ -410,7 +404,6 @@ export class Translator {
      * @returns {Promise<import('translation-internal').DatabaseDeinflection[]>}
      */
     async _getDictionaryDeinflections(language, deinflections, enabledDictionaryMap, matchType) {
-        safePerformance.mark('translator:getDictionaryDeinflections:start');
         /** @type {import('translation-internal').DatabaseDeinflection[]} */
         const dictionaryDeinflections = [];
         for (const deinflection of deinflections) {
@@ -441,8 +434,6 @@ export class Translator {
 
         await this._addEntriesToDeinflections(language, dictionaryDeinflections, enabledDictionaryMap, matchType);
 
-        safePerformance.mark('translator:getDictionaryDeinflections:end');
-        safePerformance.measure('translator:getDictionaryDeinflections', 'translator:getDictionaryDeinflections:start', 'translator:getDictionaryDeinflections:end');
         return dictionaryDeinflections;
     }
 
@@ -2222,8 +2213,8 @@ export class Translator {
             }
             dictionaryEntry.frequencyOrder = (
                 frequencyMin <= frequencyMax ?
-                    (ascending ? frequencyMin : -frequencyMax) :
-                    (ascending ? Number.MAX_SAFE_INTEGER : 0)
+                (ascending ? frequencyMin : -frequencyMax) :
+                (ascending ? Number.MAX_SAFE_INTEGER : 0)
             );
             for (const definition of definitions) {
                 frequencyMin = Number.MAX_SAFE_INTEGER;
@@ -2237,8 +2228,8 @@ export class Translator {
                 }
                 definition.frequencyOrder = (
                     frequencyMin <= frequencyMax ?
-                        (ascending ? frequencyMin : -frequencyMax) :
-                        (ascending ? Number.MAX_SAFE_INTEGER : 0)
+                    (ascending ? frequencyMin : -frequencyMax) :
+                    (ascending ? Number.MAX_SAFE_INTEGER : 0)
                 );
             }
             frequencyMap.clear();
