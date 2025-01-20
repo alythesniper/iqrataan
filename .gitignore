@@ -11,6 +11,5 @@ dictionaries/
 /playwright/.cache/
 /test/playwright/__screenshots__/
 
-ext/manifest.json
 
 ext/lib/*
