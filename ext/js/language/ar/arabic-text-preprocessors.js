@@ -90,13 +90,3 @@ export const fixYaa = {
         return setting ? text.replace('ى', 'ي') : text;
     },
 };
-
-/** @type {import('language').TextProcessor<boolean>} */
-export const endingHaaToTaa = {
-    name: 'Change ending haa to taa',
-    description: 'جزمه ⬅️ جزمة',
-    options: basicTextProcessorOptions,
-    process: (text, setting) => {
-        return setting ? text.replace(/ه$/, 'ة') : text;
-    },
-};
