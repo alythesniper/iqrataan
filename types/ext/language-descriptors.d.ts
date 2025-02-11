@@ -80,6 +80,15 @@ type AllTextProcessors = {
             convertAlifNoHamza: TextProcessor<boolean>;
         };
     };
+    arz: {
+        pre: {
+            removeArabicScriptDiacritics: TextProcessor<boolean>;
+            addHamzaTop: TextProcessor<boolean>;
+            addHamzaBottom: TextProcessor<boolean>;
+            fixYaa: TextProcessor<boolean>;
+            convertAlifNoHamza: TextProcessor<boolean>;
+        };
+    };
     cs: {
         pre: CapitalizationPreprocessors;
     };
